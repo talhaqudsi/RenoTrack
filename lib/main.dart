@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:renotrack/about.dart';
+import 'package:renotrack/screens/about_screen.dart';
 import 'package:renotrack/screens/add_project_screen.dart';
 import 'package:renotrack/screens/project_detail_screen.dart';
 import 'package:renotrack/models/project.dart';
@@ -35,15 +35,16 @@ class RenoTrackApp extends StatelessWidget {
       routes: {
         '/': (context) => ProjectManager(), // Home screen
         '/add_project': (context) => AddProjectScreen(), // Add project screen
-        '/about': (context) => About(), // About page
+        '/about': (context) => AboutScreen(), // About page
       },
       onGenerateRoute: (settings) {
-        if (settings.name == '/project_detail') {
+        // Check if the requested route is '/project_detail'
+        if (settings.name == '/project_detail') { // Retrieve the project ID passed as an argument
           final projectId = settings.arguments as String;
           final project = Provider.of<ProjectProvider>(context, listen: false)
-              .getProjectById(projectId);
+              .getProjectById(projectId); // Fetch the corresponding project from the provider
           return MaterialPageRoute(
-            builder: (context) => ProjectDetailScreen(project: project!),
+            builder: (context) => ProjectDetailScreen(project: project!), // Navigate to the ProjectDetailScreen
           );
         }
         return null;

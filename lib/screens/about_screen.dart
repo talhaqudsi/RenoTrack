@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 // The About page/screen only displays the BSD license and
 // allows to navigate back to the main/root page/screen
-class About extends StatefulWidget {
-  const About({super.key});
+class AboutScreen extends StatefulWidget {
+  const AboutScreen({super.key});
 
   @override
-  AboutState createState() => AboutState();
+  AboutScreenState createState() => AboutScreenState();
 }
 
-class AboutState extends State<About> {
+class AboutScreenState extends State<AboutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
