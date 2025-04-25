@@ -3,11 +3,13 @@ import '../models/project.dart';
 import 'package:provider/provider.dart';
 import '../providers/project_provider.dart';
 
+// Screen that displays detailed view of a project and its progress logs
 class ProjectDetailScreen extends StatelessWidget {
   final Project project;
 
   const ProjectDetailScreen({super.key, required this.project});
 
+  // Opens a dialog to edit a specific log entry
   void _editLogEntry(
       BuildContext context, int logIndex, LogEntry initialEntry) async {
     final result = await showDialog<_LogEditResult>(
@@ -23,13 +25,15 @@ class ProjectDetailScreen extends StatelessWidget {
     if (result != null) {
       final provider = Provider.of<ProjectProvider>(context, listen: false);
       if (result.delete) {
-        provider.deleteLogEntry(project.id, logIndex);
+        provider.deleteLogEntry(project.id, logIndex); // Deletes log entry
       } else if (result.updatedEntry != null) {
-        provider.updateLogEntry(project.id, logIndex, result.updatedEntry!);
+        provider.updateLogEntry(
+            project.id, logIndex, result.updatedEntry!); // Updates log entry
       }
     }
   }
 
+  // Opens a dialog to add a new log entry
   void _addLogEntry(BuildContext context) async {
     final newEntry = await showDialog<LogEntry>(
       context: context,
@@ -40,7 +44,7 @@ class ProjectDetailScreen extends StatelessWidget {
 
     if (newEntry != null) {
       Provider.of<ProjectProvider>(context, listen: false)
-          .addLogEntry(project.id, newEntry);
+          .addLogEntry(project.id, newEntry); // Adds new log entry
     }
   }
 
@@ -54,12 +58,14 @@ class ProjectDetailScreen extends StatelessWidget {
         title: Text(updatedProject.name),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
+        titleSpacing: 0, // Reduces title spacing from back button
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Project details section
             Text('Project Details',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
@@ -80,20 +86,17 @@ class ProjectDetailScreen extends StatelessWidget {
                     Divider(height: 0),
                     ListTile(
                       leading: Icon(Icons.attach_money, color: Colors.green),
-                      title: 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Budget:',
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Budget:',
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold)),
-                            Text(updatedProject.formattedBudget,
+                          Text(updatedProject.formattedBudget,
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ))
-                          ],
-                        ),
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -107,27 +110,24 @@ class ProjectDetailScreen extends StatelessWidget {
                                       color: Colors.redAccent)),
                               Text(updatedProject.formattedTotalSpent,
                                   style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                  ))
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red)),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                  'Remaining:',
+                              Text('Remaining:',
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.teal)),
                               Text(updatedProject.formattedRemaining,
                                   style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.teal,
-                                  ))
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.teal)),
                             ],
                           ),
                         ],
@@ -138,19 +138,22 @@ class ProjectDetailScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
+            // Progress logs section
             Text('Progress Logs',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             Expanded(
               child: updatedProject.logs.isEmpty
-                  ? Center(child: Text('No updates yet.'))
+                  ? Center(
+                      child: Text('No updates yet.')) // Shown if no logs exist
                   : ListView.builder(
                       itemCount: updatedProject.logs.length,
                       itemBuilder: (context, index) {
                         final log = updatedProject.logs[index];
                         return Dismissible(
                           key: Key('${project.id}_$index'),
-                          direction: DismissDirection.endToStart,
+                          direction:
+                              DismissDirection.endToStart, // Swipe to delete
                           background: Container(
                             alignment: Alignment.centerRight,
                             color: Colors.red,
@@ -181,10 +184,12 @@ class ProjectDetailScreen extends StatelessWidget {
                           },
                           onDismissed: (direction) {
                             Provider.of<ProjectProvider>(context, listen: false)
-                                .deleteLogEntry(project.id, index);
+                                .deleteLogEntry(project.id,
+                                    index); // Delete log from provider
                           },
                           child: GestureDetector(
-                            onTap: () => _editLogEntry(context, index, log),
+                            onTap: () => _editLogEntry(
+                                context, index, log), // Edit log on tap
                             child: Card(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
@@ -193,13 +198,14 @@ class ProjectDetailScreen extends StatelessWidget {
                               child: ListTile(
                                 leading: Icon(Icons.check_circle_outline,
                                     color: Colors.green),
-                                title: Text(log.description),
+                                title: Text(log.description), // Log description
                                 subtitle: Text(
-                                    '${log.formattedDate} at ${log.formattedTime}'),
+                                    '${log.formattedDate} at ${log.formattedTime}'), // Log timestamp
                                 trailing: Text(
                                     '\$${log.cost.toStringAsFixed(2)}',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
+                                    style: TextStyle(
+                                        fontWeight:
+                                            FontWeight.bold)), // Log cost
                               ),
                             ),
                           ),
@@ -211,7 +217,7 @@ class ProjectDetailScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addLogEntry(context),
+        onPressed: () => _addLogEntry(context), // Opens add log entry dialog
         backgroundColor: Colors.indigoAccent,
         tooltip: 'Add Progress Log',
         child: Icon(Icons.add, color: Colors.white),
@@ -220,6 +226,7 @@ class ProjectDetailScreen extends StatelessWidget {
   }
 }
 
+// Helper class to handle edit or delete operations on logs
 class _LogEditResult {
   final LogEntry? updatedEntry;
   final bool delete;
@@ -227,6 +234,7 @@ class _LogEditResult {
   _LogEditResult({this.updatedEntry, this.delete = false});
 }
 
+// Dialog widget for adding or editing a log entry
 class _AddLogDialog extends StatefulWidget {
   final LogEntry? initialEntry;
   final bool allowDelete;
@@ -249,6 +257,7 @@ class _AddLogDialogState extends State<_AddLogDialog> {
     _cost = widget.initialEntry?.cost.toString() ?? '';
   }
 
+  // Submits the form for either adding or updating a log entry
   void _submit() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -265,6 +274,7 @@ class _AddLogDialogState extends State<_AddLogDialog> {
     }
   }
 
+  // Handles deletion of a log entry with confirmation
   void _delete() async {
     final confirm = await showDialog<bool>(
       context: context,

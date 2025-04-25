@@ -17,6 +17,7 @@ class AboutState extends State<About> {
         title: Text("About"),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
+        titleSpacing: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -24,11 +25,12 @@ class AboutState extends State<About> {
           child: Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
-              children: <Widget>[
-                Text(
-                  "RenoTrack",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
+              children: [
+                Image.asset('assets/images/renotrack_logo.png', height: 128),
+                // Text(
+                //   "RenoTrack",
+                //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                // ),
                 SizedBox(height: 16),
                 // Using a multiline text widget to display the BSD license
                 Text(

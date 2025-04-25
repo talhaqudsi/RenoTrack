@@ -29,6 +29,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/renotrack_logo.png
     - assets/icon/app_icon.png
     - assets/splash/splash_icon.png
 
