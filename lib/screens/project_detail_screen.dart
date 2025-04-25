@@ -26,6 +26,9 @@ class ProjectDetailScreen extends StatelessWidget {
       final provider = Provider.of<ProjectProvider>(context, listen: false);
       if (result.delete) {
         provider.deleteLogEntry(project.id, logIndex); // Deletes log entry
+        ScaffoldMessenger.of(context).showSnackBar( // Snackbar deletion confirmation message
+          SnackBar(content: Text('Deleted Log "${initialEntry.description}"')),
+        );
       } else if (result.updatedEntry != null) {
         provider.updateLogEntry(
             project.id, logIndex, result.updatedEntry!); // Updates log entry
@@ -52,6 +55,10 @@ class ProjectDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<ProjectProvider>(context);
     final updatedProject = provider.getProjectById(project.id)!;
+
+    // Create a sorted copy so UI remains stable
+    final sortedLogs = [...updatedProject.logs];
+    sortedLogs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
     return Scaffold(
       appBar: AppBar(
@@ -143,17 +150,17 @@ class ProjectDetailScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             Expanded(
-              child: updatedProject.logs.isEmpty
-                  ? Center(
-                      child: Text('No updates yet.')) // Shown if no logs exist
+              child: sortedLogs.isEmpty
+                  ? Center(child: Text('No updates yet.'))
                   : ListView.builder(
-                      itemCount: updatedProject.logs.length,
+                      itemCount: sortedLogs.length,
                       itemBuilder: (context, index) {
-                        final log = updatedProject.logs[index];
+                        final log = sortedLogs[index];
+
                         return Dismissible(
-                          key: Key('${project.id}_$index'),
-                          direction:
-                              DismissDirection.endToStart, // Swipe to delete
+                          key: Key(log.timestamp
+                              .toIso8601String()), // Use a stable key
+                          direction: DismissDirection.endToStart,
                           background: Container(
                             alignment: Alignment.centerRight,
                             color: Colors.red,
@@ -166,7 +173,7 @@ class ProjectDetailScreen extends StatelessWidget {
                               builder: (context) => AlertDialog(
                                 title: Text('Delete Log Entry'),
                                 content: Text(
-                                    'Are you sure you want to delete this progress log?'),
+                                    'Are you sure you want to delete this log entry?'),
                                 actions: [
                                   TextButton(
                                     onPressed: () =>
@@ -176,7 +183,8 @@ class ProjectDetailScreen extends StatelessWidget {
                                   TextButton(
                                     onPressed: () =>
                                         Navigator.of(context).pop(true),
-                                    child: Text('Delete'),
+                                    child: Text('Delete',
+                                        style: TextStyle(color: Colors.red)),
                                   ),
                                 ],
                               ),
@@ -185,11 +193,17 @@ class ProjectDetailScreen extends StatelessWidget {
                           onDismissed: (direction) {
                             Provider.of<ProjectProvider>(context, listen: false)
                                 .deleteLogEntry(project.id,
-                                    index); // Delete log from provider
+                                    updatedProject.logs.indexOf(log));
+                            ScaffoldMessenger.of(context).showSnackBar( // Snackbar deletion confirmation message
+                              SnackBar(content: Text('Deleted Log: "${log.description}"')),
+                            );
                           },
                           child: GestureDetector(
                             onTap: () => _editLogEntry(
-                                context, index, log), // Edit log on tap
+                              context,
+                              updatedProject.logs.indexOf(log),
+                              log,
+                            ),
                             child: Card(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
@@ -198,14 +212,13 @@ class ProjectDetailScreen extends StatelessWidget {
                               child: ListTile(
                                 leading: Icon(Icons.check_circle_outline,
                                     color: Colors.green),
-                                title: Text(log.description), // Log description
+                                title: Text(log.description),
                                 subtitle: Text(
-                                    '${log.formattedDate} at ${log.formattedTime}'), // Log timestamp
+                                    '${log.formattedDate} at ${log.formattedTime}'),
                                 trailing: Text(
-                                    '\$${log.cost.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                        fontWeight:
-                                            FontWeight.bold)), // Log cost
+                                  '\$${log.cost.toStringAsFixed(2)}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
                           ),

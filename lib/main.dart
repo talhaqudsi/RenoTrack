@@ -123,14 +123,17 @@ class ProjectManager extends StatelessWidget {
                           TextButton(
                             onPressed: () => Navigator.of(context)
                                 .pop(true), // Confirm deletion
-                            child: Text('Delete'),
+                            child: Text('Delete', style: TextStyle(color: Colors.red)),
                           ),
                         ],
                       ),
                     );
                   },
                   onDismissed: (direction) {
-                    provider.deleteProject(project.id); // Deletes the project
+                    provider.deleteProject(project.id);
+                    ScaffoldMessenger.of(context).showSnackBar( // Snackbar deletion confirmation message
+                      SnackBar(content: Text('Deleted Project: "${project.name}"')),
+                    );
                   },
                   child: GestureDetector(
                     onTap: () => Navigator.pushNamed(
